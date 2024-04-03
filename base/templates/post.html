@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if post %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card mb-4" style="max-width: 500px">
+        <h5 class="card-title">
+          <a
+            href="{% url 'user_profile' post.posted_by.id %}"
+            style="text-decoration: none"
+            >{{post.posted_by}}</a
+          >
+        </h5>
+        <img
+          src="{{ post.ImageURL }}"
+          class="card-img-top"
+          alt="Post Image"
+          style="max-width: 100%; height: auto"
+        />
+        <div class="card-body">
+          <p class="card-text">{{post.caption}}</p>
+          <span class="material-symbols-outlined">
+            <form id="likeForm{{ post.id }}" action="{% url 'like_post' post.id %}" method="POST">
+              {% csrf_token %}
+              <a href="#" onclick="toggleLike(event, '{{ post.id }}');" data-post-id="{{ post.id }}" class="like-button">favorite</a>
+            </form>
+          </span>
+          <span class="material-symbols-outlined">
+            <a href="#">mode_comment</a> </span
+          ><br />
+          <p class="card-text">{{post.no_of_likes.count}} likes</p>
+        </div>
+      </div>
+    </div>
+    
+
+    <h2>Comments</h2>
+    {% for comment in post.comments.all %}
+    <p>
+      <strong>{{ comment.commenter.username }}</strong>: {{ comment.comment_body }}
+    </p>
+    <p><small>{{ comment.date_added }}</small></p>
+    {% empty %}
+    <p>No comments yet.</p>
+    {% endfor %}
+
+    <form method="post" action="{% url 'view_post' post.id %}">
+      {% csrf_token %}
+        {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Add Comment</button>
+    </form>
+  </div>
+</div>
+<script>
+  function toggleLike(event, postId) {
+    event.preventDefault();
+    const likeButton = event.target;
+    likeButton.classList.toggle('liked');
+
+    // Optionally, you can submit the form using JavaScript
+    document.getElementById('likeForm' + postId).submit();
+  }
+</script>
+{% endif %}
+{% endblock %}

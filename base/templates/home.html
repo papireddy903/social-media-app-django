@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-6">
+      {% for post in posts %}
+        <div class="card mb-4" style="max-width: 500px">
+          <h5 class="card-title">
+            <a href="{% url 'user_profile' post.posted_by.id %}" style="text-decoration: none">{{post.posted_by}}</a>
+          </h5>
+          <a href="{% url 'view_post' post.id%}" style="text-decoration: none; color: inherit;">
+            <img
+              src="{{ post.ImageURL }}"
+              class="card-img-top"
+              alt="Post Image"
+              style="max-width: 100%; height: auto"
+            />
+          </a>
+          <div class="card-body">
+            <p class="card-text">{{post.caption}}</p>
+            <div class="row">
+              <div class="col-6">
+                <form id="likeForm{{ post.id }}" action="{% url 'like_post' post.id %}" method="POST">
+                  {% csrf_token %}
+                  <a href="#" onclick="toggleLike(event, '{{ post.id }}');" data-post-id="{{ post.id }}" class="like-button"><span class="material-symbols-outlined">favorite</span></a>
+                  <span class="material-symbols-outlined">
+                    <a href="#">mode_comment</a>
+                  </span>
+                </form>
+                
+              </div>
+            </div>
+            <p class="card-text">{{post.no_of_likes.count}} likes</p>
+          </div>
+        </div>
+      <script>
+        function toggleLike(event, postId) {
+          event.preventDefault();
+          const likeButton = event.target;
+          likeButton.classList.toggle('liked');
+          document.getElementById('likeForm' + postId).submit();
+        }
+      </script>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

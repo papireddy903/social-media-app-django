@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  {% if user %}
+    <div class="container mt-5">
+      <div class="row">
+        <div class="col-md-3">
+          <img src="{{ user.Photourl }}" class="profile-photo rounded-circle thumbnail" alt="">
+        </div>
+        <a href="{% url 'update_profile' pk=user.id %}"><span class="material-symbols-outlined">
+          edit
+          </span></a>
+        <div class="col-md-9">
+          <h1>{{ user.username }}</h1>
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p>{{ no_of_followers }} <strong>Followers</strong></p>
+            </div>
+            <div class="flex-grow-1">
+              <p>{{ no_of_following }} <strong>Following</strong> </p>
+            </div>
+            <div class="flex-grow-1">
+              <p>{{ no_of_posts }} <strong>Posts</strong> </p>
+            </div>
+              {% if followers %}
+            {% for follower in followers %}
+            <p>{{follower}}</p>
+            {% endfor %}
+            {% endif %}
+            {% if followers %}
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Followers
+          </button>
+          <ul class="dropdown-menu">
+            {% for follower in followers %}
+
+            <li><a class="dropdown-item" href="{% url 'user_profile' follower.user.id}">{{follower}}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+          </div>
+        </div>
+        
+
+
+      
+      {% if request.user.email in followers_list %}
+      <div class="col-md-12">
+        <form action="{% url 'unfollow_user' pk=user.id %}" method="POST">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary">Following</button>
+        </form>
+
+        {% else %}
+
+        <form action="{% url 'follow_user' pk=user.id %}" method="POST">
+          {% csrf_token %}
+        <div class="col-md-12">
+          <button type="submit" href="" class="btn btn-primary">Follow</button>
+        </div>
+      </form>
+      </div>
+      {% endif %}
+        <div class="col-md-12 mt-4">
+          <h3>Posts</h3>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+      {% for post in posts %}
+      <h5 class="card-title">
+        <a href="{% url 'user_profile' post.posted_by.id %}" style="text-decoration: none">{{post.posted_by}}</a>
+      </h5>
+      <div class="card mb-4" style="max-width: 500px;">
+        <a href="{% url 'view_post' post.id %}"><img src="{{ post.ImageURL }}" class="card-img-top" alt="Post Image" style="max-width: 100%; height: auto;"></a>
+        <div class="card-body">
+          <p class="card-text">{{post.caption}}</p>
+          <span class="material-symbols-outlined">
+            <form id="likeForm{{ post.id }}" action="{% url 'like_post' post.id %}" method="POST">
+              {% csrf_token %}
+              <a href="#" onclick="document.getElementById('likeForm{{ post.id }}').submit();" data-post-id="{{ post.id }}" class="like-button">favorite</a>
+            </form>
+          </span>
+          <span class="material-symbols-outlined">
+            <a href="{% url 'view_post' post.id %}">mode_comment</a>
+          </span><br>
+          <p class="card-text">{{post.no_of_likes.count}} likes</p>
+        </div>
+      </div>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const likeButtons = document.querySelectorAll('.like-button'); 
+          likeButtons.forEach(function(button){
+            button.addEventListener('click', function (event){
+              event.preventDefault();
+              button.classList.toggle('liked');
+
+          });
+        });
+      </script>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+  {% endif %}
+{% endblock %}
